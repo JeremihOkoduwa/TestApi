@@ -60,6 +60,7 @@ namespace TestApi.Controllers
         [Produces(typeof(string))]
         public async Task<IActionResult> EmailGet(List<string> emails)
         {
+            
             try
             {
                 foreach (var item in emails)
