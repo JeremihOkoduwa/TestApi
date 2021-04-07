@@ -1,6 +1,7 @@
 ﻿using MimeKit;
 using MongoDB.Driver;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,11 +22,41 @@ namespace Test.Repo.repo.AuthorRepo
             _author = mongoDbInit.InitializeAuthorCollection().Result;
         }
 
+        public Task<List<AuthorInfo>> GetAllAuthorInfo()
+        {
+            IEnumerable<Author> authors = new List<Author>();
+            var allAuthors = _author.Find(x => true).ToList();
+           var allAuthorInfo = allAuthors.Where(x => x.Ispublished == true).Select(authInfo => new AuthorInfo
+            {
+                Address = authInfo.Address,
+                PhoneNumber = authInfo.PhoneNumber,
+                EmailAddress = authInfo.EmailAddress,
+                Name = $"{authInfo.FirstName} {authInfo.LastName}"
+            });
+
+            return Task.FromResult(allAuthorInfo.ToList());
+            //var allAuthorInfo = from authorInfo in allAuthors
+            //                    where authorInfo.Ispublished == true
+            //                    select new AuthorInfo
+            //                    {
+            //                        Address = authorInfo.Address,
+            //                        EmailAddress = authorInfo.EmailAddress,
+            //                        Name = $"{authorInfo.FirstName} {authorInfo.LastName}"
+                                    
+            //                    };
+        }
         public async Task<(bool, string)> Insert(AuthorDto model)
         {
+            
             Random rd = new Random();
             try
             {
+                var filter = Builders<Author>.Filter.Where(x => x.FirstName == model.FirstName && x.LastName == model.LastName);
+                var result =  _author.Find(filter).ToList();
+                if (result.Count > 0)
+                {
+                    return (false, "Author Exists, insert new Author");
+                }
                 var obj = new Author
                 {
                     Address = model.Address,
@@ -33,6 +64,8 @@ namespace Test.Repo.repo.AuthorRepo
                     EmailAddress = model.EmailAddress,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
+                    Ispublished = model.IsPublished,
+                    
                     PhoneNumber = model.PhoneNumber
                 };
                 await _author.InsertOneAsync(obj);
@@ -56,7 +89,7 @@ namespace Test.Repo.repo.AuthorRepo
             return result;
 
         }
-
+        
         public MimeMessage CreateMimeMessageFromEmailMessage(EmailMessage message)
         {
             var mimeMessage = new MimeMessage();

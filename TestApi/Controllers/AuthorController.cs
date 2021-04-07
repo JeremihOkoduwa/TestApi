@@ -24,7 +24,31 @@ namespace TestApi.Controllers
         {
             _authorRepo = authorRepo;
         }
-        [HttpPost("InsertAuthor")]
+
+        [HttpGet("[action]")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces(typeof(string))]
+        public async Task<IActionResult> GetAllAuthorInfo()
+        {
+            try
+            {
+                var result = _authorRepo.GetAllAuthorInfo().Result;
+                if (result.Count > 0)
+                {
+                    return Ok(result);
+                }
+                return NoContent();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -36,14 +60,16 @@ namespace TestApi.Controllers
                 (bool, string) res;
                 if (ModelState.IsValid)
                 {
-                    var result = await _authorRepo.Insert(model);
-                    res = result;
-                    if (result.Item1)
+                     res = await _authorRepo.Insert(model);
+                    
+                    if (res.Item1)
                     {
-                        return Ok(result.Item2);
+                        return Ok(res.Item2);
                     }
+                    return Ok(res.Item2);
+                    
                 }
-                return BadRequest("Invalid Model");
+                return BadRequest("Invalide Model");
             }
             catch (Exception ex)
             {

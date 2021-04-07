@@ -16,6 +16,8 @@ namespace Test.Core
         public string LastName { get; set; }
         public string Address { get; set; }
         public string EmailAddress { get; set; }
+        [BsonDefaultValue(false)]
+        public bool? Ispublished { get; set; } 
         public string PhoneNumber { get; set; }
     }
 }
