@@ -30,6 +30,29 @@ namespace TestApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces(typeof(string))]
+        public async Task<IActionResult> Search(string search)
+        {
+            try
+            {
+                var result = await _authorRepo.Search(search);
+                if (result.Count > 0)
+                {
+                    return Ok(result);
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        [HttpGet("[action]")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces(typeof(string))]
         public async Task<IActionResult> GetAllAuthorInfo()
         {
             try

@@ -34,6 +34,14 @@ namespace TestApi
             services.AddTransient<IAuthorRepo, AuthorRepo>();
             services.AddTransient<IMongoInit, MongoInit>();
             services.AddControllers();
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("Cors-Policy", p =>
+                {
+                    p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                });
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TestApi", Version = "v1" });
@@ -49,7 +57,10 @@ namespace TestApi
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TestApi v1"));
             }
-
+            app.UseCors(builder =>
+                       builder.AllowAnyOrigin()
+                       .AllowAnyHeader()
+                       .AllowAnyMethod());
             app.UseHttpsRedirection();
 
             app.UseRouting();

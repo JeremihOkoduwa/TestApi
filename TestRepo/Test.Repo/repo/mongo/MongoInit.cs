@@ -11,7 +11,7 @@ namespace Test.Repo.repo.mongo
 {
     public class MongoInit : IMongoInit
     {
-        private IMongoCollection<Author> author;
+        //private IMongoCollection<T> author;
         private readonly AppSettings _appSettings;
         private static string connectionString;
         private IMongoDatabase db;
@@ -22,14 +22,15 @@ namespace Test.Repo.repo.mongo
             
         }
 
-        public async Task<IMongoCollection<Author>> InitializeAuthorCollection()
+        public async Task<IMongoCollection<T>> InitializeAuthorCollection<T>(string tableName) 
         {
            
             try
             {
                 var client = new MongoClient(connectionString);
                 db = client.GetDatabase(_appSettings.Databasename);
-                author = db.GetCollection<Author>(_appSettings.AuthorCollection);
+                var author = db.GetCollection<T>(tableName);
+               
                 return await Task.FromResult(author);
             }
             catch (Exception ex)

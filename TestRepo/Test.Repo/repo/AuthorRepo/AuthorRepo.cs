@@ -13,15 +13,52 @@ namespace Test.Repo.repo.AuthorRepo
 {
     public class AuthorRepo : IAuthorRepo
     {
+        private const string tableName = "Author";
         private readonly IMongoCollection<Author> _author;
         private readonly IMongoInit _mongoDbInit;
 
         public AuthorRepo(IMongoInit mongoDbInit)
         {
             _mongoDbInit = mongoDbInit;
-            _author = mongoDbInit.InitializeAuthorCollection().Result;
+            _author = mongoDbInit.InitializeAuthorCollection< Author>(tableName).Result;
         }
 
+        public async Task<List<Author>> Search(string search)
+        {
+            var modifiedSearch = search;
+            var modifiedChar = search.ToCharArray();
+            
+            List<Author> result = null;
+            List<char> modSearch = new List<char>();
+            for (int i = 0; i < search.Length; i++)
+            {
+                if (modifiedChar[i] != '?')
+                {
+                    modSearch.Add(modifiedChar[i]);
+                    
+                }
+            }
+
+            var currentString = new string(modSearch.ToArray());
+            
+            //_author.Indexes.CreateOne(new CreateIndexModel<Author>(Builders<Author>.IndexKeys.Text(x => x.FirstName)));
+           var results = _author.AsQueryable();
+            var res = results.Where(x => x.FirstName.ToLower().Contains(currentString.ToLower())).ToList(); 
+            //results.where
+            result = _author.Find(Builders<Author>.Filter.Text(search)).ToList();
+            //await Task.Run(() =>
+            //{
+            //    _author.Indexes.CreateOne(new CreateIndexModel<Author>(Builders<Author>.IndexKeys.Text("$**")));
+            //     result = _author.Find(Builders<Author>.Filter.Text(search)).ToList();
+
+            //});
+
+            return res;
+           
+                
+        }
+
+        
         public Task<List<AuthorInfo>> GetAllAuthorInfo()
         {
             IEnumerable<Author> authors = new List<Author>();

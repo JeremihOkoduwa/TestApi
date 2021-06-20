@@ -9,6 +9,6 @@ namespace Test.Repo.repo.mongo
 {
     public interface IMongoInit
     {
-        Task<IMongoCollection<Author>> InitializeAuthorCollection();
+        Task<IMongoCollection<T>> InitializeAuthorCollection<T>(string tableName);
     }
 }
