@@ -22,16 +22,16 @@ namespace Test.Repo.repo.mongo
             
         }
 
-        public async Task<IMongoCollection<T>> InitializeAuthorCollection<T>(string tableName) 
+        public async Task<IMongoDatabase> InitializeCollection() 
         {
            
             try
             {
                 var client = new MongoClient(connectionString);
                 db = client.GetDatabase(_appSettings.Databasename);
-                var author = db.GetCollection<T>(tableName);
+                //var author = db.GetCollection<T>(nameof(T));
                
-                return await Task.FromResult(author);
+                return await Task.FromResult(db);
             }
             catch (Exception ex)
             {

@@ -3,14 +3,13 @@ using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Test.Core.Model.BaseModel;
 
 namespace Test.Core
 {
-    public class Author
+    public class Author : BaseModels
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string _id { get; set; }
+       
         public int AuthorId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Test.Core;
 using Test.Core.Model;
 using Test.Repo.repo.mongo;
+using Test.Repo.BaseRepo;
+using System.Linq.Expressions;
 
 namespace Test.Repo.repo.AuthorRepo
 {
@@ -16,11 +18,13 @@ namespace Test.Repo.repo.AuthorRepo
         private const string tableName = "Author";
         private readonly IMongoCollection<Author> _author;
         private readonly IMongoInit _mongoDbInit;
+        private readonly IBaseMongoRepository _baseMongoRepo;
+        private readonly IBaseMongoRepo<Author> _baseRepo;
 
-        public AuthorRepo(IMongoInit mongoDbInit)
+        public AuthorRepo(IBaseMongoRepository baseMongoRepo, IBaseMongoRepo<Author> baseRepo)
         {
-            _mongoDbInit = mongoDbInit;
-            _author = mongoDbInit.InitializeAuthorCollection< Author>(tableName).Result;
+            _baseMongoRepo = baseMongoRepo;
+            _baseRepo = baseRepo;
         }
 
         public async Task<List<Author>> Search(string search)
@@ -40,9 +44,9 @@ namespace Test.Repo.repo.AuthorRepo
             }
 
             var currentString = new string(modSearch.ToArray());
-            
+
             //_author.Indexes.CreateOne(new CreateIndexModel<Author>(Builders<Author>.IndexKeys.Text(x => x.FirstName)));
-           var results = _author.AsQueryable();
+            var results = await _baseMongoRepo.AsQueryable<Author>();
             var res = results.Where(x => x.FirstName.ToLower().Contains(currentString.ToLower())).ToList(); 
             //results.where
             result = _author.Find(Builders<Author>.Filter.Text(search)).ToList();
@@ -59,10 +63,12 @@ namespace Test.Repo.repo.AuthorRepo
         }
 
         
-        public Task<List<AuthorInfo>> GetAllAuthorInfo()
+        public async Task<List<AuthorInfo>> GetAllAuthorInfo()
         {
             IEnumerable<Author> authors = new List<Author>();
-            var allAuthors = _author.Find(x => true).ToList();
+            Expression<Func<Author, bool>> expression = x => true;
+            
+            var allAuthors = await _baseMongoRepo.FilterByExpression(expression);
            var allAuthorInfo = allAuthors.Where(x => x.Ispublished == true).Select(authInfo => new AuthorInfo
             {
                 Address = authInfo.Address,
@@ -71,7 +77,7 @@ namespace Test.Repo.repo.AuthorRepo
                 Name = $"{authInfo.FirstName} {authInfo.LastName}"
             });
 
-            return Task.FromResult(allAuthorInfo.ToList());
+            return allAuthorInfo.ToList();
             //var allAuthorInfo = from authorInfo in allAuthors
             //                    where authorInfo.Ispublished == true
             //                    select new AuthorInfo
@@ -88,11 +94,17 @@ namespace Test.Repo.repo.AuthorRepo
             Random rd = new Random();
             try
             {
-                var filter = Builders<Author>.Filter.Where(x => x.FirstName == model.FirstName && x.LastName == model.LastName);
-                var result =  _author.Find(filter).ToList();
-                if (result.Count > 0)
+                Expression<Func<Author, bool>> expression = x => x.FirstName == model.FirstName && x.LastName == model.LastName;
+
+                var result = await _baseMongoRepo.FilterByExpression(expression);
+                if (result.Count() > 0)
                 {
-                    return (false, "Author Exists, insert new Author");
+                    //foreach (var item in result)
+                    //{
+                    //   var isDeleted = await  Delete(item.AuthorId);
+                    //}
+                   
+                   return (false, "Author Exists, insert new Author");
                 }
                 var obj = new Author
                 {
@@ -104,9 +116,10 @@ namespace Test.Repo.repo.AuthorRepo
                     Ispublished = model.IsPublished,
                     
                     PhoneNumber = model.PhoneNumber
+                    
                 };
-                await _author.InsertOneAsync(obj);
-                return (true, obj._id);
+                var auhorInserted = await _baseMongoRepo.InsertOneAsync<Author>(obj);
+                return (true, auhorInserted._id);
             }
             catch (Exception ex)
             {
@@ -117,11 +130,26 @@ namespace Test.Repo.repo.AuthorRepo
             }
 
         }
+        private Task<bool> Delete(int id)
+        {
+            try
+            {
+                Expression<Func<Author, bool>> expression = x => x.AuthorId == id;
+               var result = _baseRepo.DeleteOneAsync(expression);
+                return Task.FromResult(result.IsCompletedSuccessfully);
+                //return Task.CompletedTask;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         public async Task<Author> GetbyAuthorId(int authorId)
         {
-            var filter = Builders<Author>.Filter.Eq(x => x.AuthorId, authorId);
+            Expression<Func<Author, bool>> expression = x => x.AuthorId == authorId;
 
-            var result = await _author.Find(filter).FirstOrDefaultAsync();
+            var result = await _baseMongoRepo.FindOneAsync(filterExpression: expression);
 
             return result;
 

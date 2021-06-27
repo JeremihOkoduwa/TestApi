@@ -12,8 +12,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Test.Core.Model;
+using Test.Repo;
+using Test.Repo.BaseRepo;
 using Test.Repo.repo.AuthorRepo;
 using Test.Repo.repo.mongo;
+using Test.Repo.repo.mongo.BaseRepo;
 
 namespace TestApi
 {
@@ -31,8 +34,11 @@ namespace TestApi
         {
             services.Configure<AppSettings>(Configuration.GetSection(nameof(AppSettings)));
 
-            services.AddTransient<IAuthorRepo, AuthorRepo>();
             services.AddTransient<IMongoInit, MongoInit>();
+            services.AddTransient<IAuthorRepo, AuthorRepo>();
+            services.AddTransient<IBaseMongoRepository, BaseMongoRepository>();
+            services.AddScoped(typeof(IBaseMongoRepo<>), typeof(BaseMongoRepo<>));
+            //services.AddTransient(typeof(IBaseMongoRepo<>), typeof(BaseMongoRepository<>));
             services.AddControllers();
 
             services.AddCors(options =>

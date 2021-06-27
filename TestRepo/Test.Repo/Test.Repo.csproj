@@ -14,4 +14,8 @@
     <ProjectReference Include="..\..\TestCore\Test.Core\Test.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="repo\NewFolder\" />
+  </ItemGroup>
+
 </Project>
