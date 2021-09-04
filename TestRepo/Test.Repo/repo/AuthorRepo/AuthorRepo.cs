@@ -10,6 +10,7 @@ using Test.Core.Model;
 using Test.Repo.repo.mongo;
 using Test.Repo.BaseRepo;
 using System.Linq.Expressions;
+using System.Threading;
 
 namespace Test.Repo.repo.AuthorRepo
 {
@@ -63,20 +64,24 @@ namespace Test.Repo.repo.AuthorRepo
         }
 
         
-        public async Task<List<AuthorInfo>> GetAllAuthorInfo()
+        public async Task<List<AuthorInfo>> GetAllAuthorInfo(IProgress<List<AuthorInfo>> progress)
         {
             IEnumerable<Author> authors = new List<Author>();
+            TaskCompletionSource<List<Author>> tsc = default;
             Expression<Func<Author, bool>> expression = x => true;
             
+
+           //var taskCompletion =  await TaskCompletionOnThreadPool(tsc, expression);
+
             var allAuthors = await _baseMongoRepo.FilterByExpression(expression);
-           var allAuthorInfo = allAuthors.Where(x => x.Ispublished == true).Select(authInfo => new AuthorInfo
+            var allAuthorInfo = allAuthors.Where(x => x.Ispublished == true).Select(authInfo => new AuthorInfo
             {
                 Address = authInfo.Address,
                 PhoneNumber = authInfo.PhoneNumber,
                 EmailAddress = authInfo.EmailAddress,
                 Name = $"{authInfo.FirstName} {authInfo.LastName}"
             });
-
+            progress.Report(allAuthorInfo.ToList());
             return allAuthorInfo.ToList();
             //var allAuthorInfo = from authorInfo in allAuthors
             //                    where authorInfo.Ispublished == true
@@ -85,7 +90,63 @@ namespace Test.Repo.repo.AuthorRepo
             //                        Address = authorInfo.Address,
             //                        EmailAddress = authorInfo.EmailAddress,
             //                        Name = $"{authorInfo.FirstName} {authorInfo.LastName}"
-                                    
+
+            //                    };
+        }
+
+        /// <summary>
+        /// use Task completion Source to create awaitables out of legace codes that don't use TPL
+        /// </summary>
+        /// <param name="tsc"></param>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        private Task<List<Author>> TaskCompletionOnThreadPool( TaskCompletionSource<List<Author>> tsc,  Expression<Func<Author, bool>> expression)
+        {
+            tsc = new TaskCompletionSource<List<Author>>(TaskCreationOptions.RunContinuationsAsynchronously);
+            expression = x => true;
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                var allAuthors = _baseMongoRepo.FilterByExpression(expression);
+                tsc.SetResult(allAuthors.Result.ToList());
+
+            });
+            return tsc.Task;
+        }
+
+        public async IAsyncEnumerable<AuthorInfo> GetAuthorStreams()
+        {
+            
+            IEnumerable<Author> authors = new List<Author>();
+            Expression<Func<Author, bool>> expression = x => true;
+            
+            var allAuthors = await _baseMongoRepo.FilterByExpression(expression);
+            //remove code;
+            await Task.Delay(5000, default);
+            foreach (var item in allAuthors.ToList().Where(x => x.Ispublished == true))
+            {
+                //remove code
+                await Task.Delay(5000, default);
+                yield return new   AuthorInfo
+                {
+                    Address = item.Address,
+                    PhoneNumber = item.PhoneNumber,
+                    EmailAddress = item.EmailAddress,
+                    Name = $"{item.FirstName} {item.LastName}"
+                };
+            }
+            
+
+            
+
+            
+            //var allAuthorInfo = from authorInfo in allAuthors
+            //                    where authorInfo.Ispublished == true
+            //                    select new AuthorInfo
+            //                    {
+            //                        Address = authorInfo.Address,
+            //                        EmailAddress = authorInfo.EmailAddress,
+            //                        Name = $"{authorInfo.FirstName} {authorInfo.LastName}"
+
             //                    };
         }
         public async Task<(bool, string)> Insert(AuthorDto model)

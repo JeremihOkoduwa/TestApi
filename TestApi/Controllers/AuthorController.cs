@@ -1,15 +1,21 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MimeKit;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using Test.ApplicationServices.AppServices.Manager;
 using Test.Core;
 using Test.Core.Model;
 using Test.Repo.repo.AuthorRepo;
+using Test.Repo.repo.mongo;
 
 namespace TestApi.Controllers
 {
@@ -18,11 +24,21 @@ namespace TestApi.Controllers
     public class AuthorController : ControllerBase
     {
         static bool mailSent = false;
+        private readonly ILogger<AuthorController> _logger;
+        public string City => "Lagos";
+        private readonly GuidService guidService;
+       
+       
         public readonly IAuthorRepo _authorRepo;
+        private readonly IWeatherForecastManager _weatherForecastManager;
         public  NotificationMetadata _notificationMetadata = new NotificationMetadata();
-        public AuthorController(IAuthorRepo authorRepo)
+        public AuthorController(IAuthorRepo authorRepo, GuidService guidService ,
+            IWeatherForecastManager weatherForecastManager, ILogger<AuthorController> logger)
         {
+            _logger = logger;
+            this.guidService = guidService;
             _authorRepo = authorRepo;
+            _weatherForecastManager = weatherForecastManager;
         }
 
         [HttpGet("[action]")]
@@ -55,11 +71,19 @@ namespace TestApi.Controllers
         [Produces(typeof(string))]
         public async Task<IActionResult> GetAllAuthorInfo()
         {
+            var progress = new Progress<List<AuthorInfo>>();
             try
             {
-                var result = _authorRepo.GetAllAuthorInfo().Result;
+                var logMessage = $"guidvalue: \"{guidService.GetGuidService()}\"";
+                _logger.LogInformation(logMessage);
+                progress.ProgressChanged += (_, result) =>
+                {
+                    Console.WriteLine($"{result.Count} - Authors Loaded");
+                };
+                var result = await  _authorRepo.GetAllAuthorInfo(progress);
                 if (result.Count > 0)
                 {
+                    
                     return Ok(result);
                 }
                 return NoContent();
@@ -71,15 +95,38 @@ namespace TestApi.Controllers
             }
         }
 
+        [HttpGet("[action]")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetCityWeatherForecast(string cityName)
+        {
+            try
+            {
+                var result = await _weatherForecastManager.GetWeatherForecastProvider(cityName);
+                var weather = result!= null  ? await result.GetWeatherForeCastForCity(cityName) : false;
+                if (weather)
+                {
+                    return Ok();
+                }
+                else return NotFound();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Produces(typeof(string))]
-        public async Task<IActionResult> InsertAuthor(AuthorDto model)
+        public async Task<IActionResult> InsertAuthor([FromBody] AuthorDto model)
         {
             try
             {
+                
+                //else return res;
                 (bool, string) res;
                 if (ModelState.IsValid)
                 {

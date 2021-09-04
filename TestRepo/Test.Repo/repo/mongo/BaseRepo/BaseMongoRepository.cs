@@ -19,7 +19,7 @@ namespace Test.Repo.BaseRepo
         public BaseMongoRepository(IMongoInit mongoDbInit)
         {
             _mongoDbInit = mongoDbInit;
-            db = _mongoDbInit.InitializeCollection().Result;
+            db =  _mongoDbInit.InitializeCollection().Result;
 
 
 

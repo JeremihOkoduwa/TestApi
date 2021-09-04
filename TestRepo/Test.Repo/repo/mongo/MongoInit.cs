@@ -12,13 +12,13 @@ namespace Test.Repo.repo.mongo
     public class MongoInit : IMongoInit
     {
         //private IMongoCollection<T> author;
-        private readonly AppSettings _appSettings;
+        private readonly IAppSettings _appSettings;
         private static string connectionString;
         private IMongoDatabase db;
-        public MongoInit(IOptions<AppSettings> options)
+        public MongoInit(IAppSettings options)
         {
-            _appSettings = options.Value;
-            connectionString = _appSettings.ConnectionString;
+            _appSettings = options;
+            connectionString = options.ConnectionString;
             
         }
 

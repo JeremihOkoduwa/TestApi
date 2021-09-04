@@ -1,4 +1,5 @@
 ﻿using MimeKit;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test.Core;
@@ -11,7 +12,7 @@ namespace Test.Repo.repo.AuthorRepo
         Task<(bool, string)> Insert(AuthorDto model);
         Task<List<Author>> Search(string search);
         Task<Author> GetbyAuthorId(int authorId);
-        Task<List<AuthorInfo>> GetAllAuthorInfo();
+        Task<List<AuthorInfo>> GetAllAuthorInfo(IProgress<List<AuthorInfo>> progress);
         MimeMessage CreateMimeMessageFromEmailMessage(EmailMessage message);
     }
 }

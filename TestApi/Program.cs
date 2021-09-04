@@ -20,6 +20,7 @@ namespace TestApi
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseDefaultServiceProvider(x => x.ValidateScopes = true);
                     webBuilder.UseStartup<Startup>();
                 });
     }
