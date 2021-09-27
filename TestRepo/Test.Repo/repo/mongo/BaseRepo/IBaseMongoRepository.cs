@@ -23,7 +23,7 @@ namespace Test.Repo.BaseRepo
         Task<TDocument> FindOneAsync<TDocument>(Expression<Func<TDocument, bool>> filterExpression);
         void InsertMany<TDocument>(ICollection<TDocument> documents);
         Task InsertManyAsync<TDocument>(ICollection<TDocument> documents);
-        Task InsertOne<TDocument>(TDocument document);
+        Task<TDocument> InsertOne<TDocument>(TDocument document);
         Task<TDocument> InsertOneAsync<TDocument>(TDocument document);
         void ReplaceOne<TDocument>(TDocument document);
         Task ReplaceOneAsync<TDocument>(TDocument document);

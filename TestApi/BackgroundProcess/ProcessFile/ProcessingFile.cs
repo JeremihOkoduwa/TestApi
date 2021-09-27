@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Test.Core;
 using Test.Repo.BaseRepo;
 
 namespace TestApi.BackgroundProcess.ProcessFile
 {
-    public class ProcessingFile
+    public class ProcessingFile : IProcessingFile
     {
         private const string Location = @"C:\Users\JEREMIAH\Desktop\New folder\worldcountries.csv";
         private readonly IBaseMongoRepository _baseMongoRepo;
@@ -26,13 +28,18 @@ namespace TestApi.BackgroundProcess.ProcessFile
             {
                 await Task.Run(() =>
                 {
+                    var timer = new Stopwatch();
+                    timer.Start();
+
                     var allCountries = ReadFromFile();
 
 
-                    Parallel.ForEach(allCountries, async (item) => {
+                    Parallel.ForEach(allCountries, (item) =>
+                    {
 
-                        await _baseMongoRepo.InsertOne(item);
-
+                        var result = _baseMongoRepo.InsertOne(item).Result;
+                        Console.WriteLine($"{result.Nation} is inserted");
+                        
 
                     });
 
@@ -40,7 +47,10 @@ namespace TestApi.BackgroundProcess.ProcessFile
 
                     result = true;
                     message = "Insertion completed";
+                    timer.Stop();
+                    Console.WriteLine($"elapsed time {timer.Elapsed}");
                 }).ConfigureAwait(false);
+                Console.WriteLine("Awaiting for task.run to finish");
             }
             catch (Exception ex)
             {
@@ -49,23 +59,23 @@ namespace TestApi.BackgroundProcess.ProcessFile
                 message = ex.Message;
                 return (result, message);
             }
-            return (result,message);
-            
+            return (result, message);
+
         }
 
-         IEnumerable<Country>  ReadFromFile()
+        IEnumerable<Country> ReadFromFile()
         {
-           
-            var file =  File.ReadAllLines(Location).Skip(3).Select(x =>
-            {
-                var column = x.Split(",", StringSplitOptions.TrimEntries);
-                return column;
-            });
-            
+
+            var file = File.ReadAllLines(Location).Skip(3).Select(x =>
+           {
+               var column = x.Split(",", StringSplitOptions.TrimEntries);
+               return column;
+           });
+
             foreach (var line in file)
             {
 
-                yield return  new Country
+                yield return new Country
                 {
                     Rank = line[0],
                     Nation = line[1],
@@ -73,7 +83,7 @@ namespace TestApi.BackgroundProcess.ProcessFile
                     Date = line[3],
                     PercentageOfWorldPopulation = line[3]
                 };
-                    
+
             }
         }
     }

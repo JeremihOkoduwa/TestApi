@@ -21,6 +21,7 @@ using Test.Repo.repo.AuthorRepo;
 using Test.Repo.repo.mongo;
 using Test.Repo.repo.mongo.BaseRepo;
 using TestApi.BackgroundProcess;
+using TestApi.BackgroundProcess.ProcessFile;
 using TestApi.Middleware;
 
 namespace TestApi
@@ -37,6 +38,7 @@ namespace TestApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IProcessingFile, ProcessingFile>();
             services.AddHostedService<FileProcessor>();
             services.TryAddSingleton<IAppSettings>(x => x.GetRequiredService<IOptions<AppSettings>>().Value);
             services.Configure<AppSettings>(Configuration.GetSection(nameof(AppSettings)));

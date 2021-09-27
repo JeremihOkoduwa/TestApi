@@ -126,16 +126,17 @@ namespace Test.Repo.BaseRepo
             throw new NotImplementedException();
         }
 
-        public Task InsertOne<TDocument>(TDocument document)
+        public Task<TDocument> InsertOne<TDocument>(TDocument document)
         {
-            throw new NotImplementedException();
+             db.GetCollection<TDocument>(typeof(TDocument).Name).InsertOne(document);
+            return  Task.FromResult(document);
         }
 
         public async Task<TDocument> InsertOneAsync<TDocument>(TDocument document)
         {
             try
             {
-                await db.GetCollection<TDocument>(typeof(TDocument).Name).InsertOneAsync(document);
+                 await db.GetCollection<TDocument>(typeof(TDocument).Name).InsertOneAsync(document);
                 return await Task.FromResult(document);
             }
             catch (Exception ex)
