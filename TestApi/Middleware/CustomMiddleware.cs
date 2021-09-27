@@ -28,13 +28,12 @@ namespace TestApi.Middleware
             var logMessage = $"guidvalue: \"{guidService.GetGuidService()}\"";
             //We need to read the response stream from the beginning...
 
-            var obj = context.Request.Body;
-            await using var ms = new MemoryStream();
-            var type = typeof(AuthorDto);
-            ms.Position = 0;
-            var stringJson =  await new StreamReader(context.Request.Body).ReadToEndAsync();
-            var json = await JsonSerializer.DeserializeAsync<AuthorDto>(ms, type);
-            await JsonSerializer.SerializeAsync(ms, new AuthorDto(), type);
+           
+            
+           
+            
+            var stringJson = await new StreamReader(context.Request.Body).ReadToEndAsync();
+          
             context.Items.Add("MiddlewareGuid", logMessage);
             _logger.LogInformation("result =>", stringJson);
             _logger.LogInformation(logMessage);

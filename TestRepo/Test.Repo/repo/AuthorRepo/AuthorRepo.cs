@@ -48,7 +48,7 @@ namespace Test.Repo.repo.AuthorRepo
 
             //_author.Indexes.CreateOne(new CreateIndexModel<Author>(Builders<Author>.IndexKeys.Text(x => x.FirstName)));
             var results = await _baseMongoRepo.AsQueryable<Author>();
-            var res = results.Where(x => x.FirstName.ToLower().Contains(currentString.ToLower())).ToList(); 
+            var res = results.Where(x => x.FirstName.Contains(currentString, StringComparison.OrdinalIgnoreCase)).ToList();
             //results.where
             result = _author.Find(Builders<Author>.Filter.Text(search)).ToList();
             //await Task.Run(() =>
@@ -158,7 +158,7 @@ namespace Test.Repo.repo.AuthorRepo
                 Expression<Func<Author, bool>> expression = x => x.FirstName == model.FirstName && x.LastName == model.LastName;
 
                 var result = await _baseMongoRepo.FilterByExpression(expression);
-                if (result.Count() > 0)
+                if (result.Any())
                 {
                     //foreach (var item in result)
                     //{

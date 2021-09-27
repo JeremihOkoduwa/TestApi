@@ -110,7 +110,7 @@ namespace TestApi.Controllers
                 }
                 else return NotFound();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;
