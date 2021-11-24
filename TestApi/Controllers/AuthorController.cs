@@ -88,10 +88,11 @@ namespace TestApi.Controllers
                 }
                 return NoContent();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                _logger.LogError("An Error Occured: {error}", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An Internal Server error occured, please contact system admin");
             }
         }
 
