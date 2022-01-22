@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -38,7 +39,7 @@ namespace TestApi.BackgroundProcess.ProcessFile
                     {
 
                         var result = _baseMongoRepo.InsertOne(item).Result;
-                        Console.WriteLine($"{result.Nation} is inserted");
+                        Log.Information("{@Process}", $" { result.Nation}is inserted");
                         
 
                     });
@@ -48,9 +49,9 @@ namespace TestApi.BackgroundProcess.ProcessFile
                     result = true;
                     message = "Insertion completed";
                     timer.Stop();
-                    Console.WriteLine($"elapsed time {timer.Elapsed}");
+                    Log.Information($"elapsed time {timer.Elapsed}");
                 }).ConfigureAwait(false);
-                Console.WriteLine("Awaiting for task.run to finish");
+                Log.Information("{@Process}","Awaiting for Task.Run to finish");
             }
             catch (Exception ex)
             {

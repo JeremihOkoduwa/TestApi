@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace TestApi.BackgroundProcess
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     //
-                    Console.WriteLine($"Application Starting at {DateTimeOffset.Now}");
+                    Log.Information("Application Starting at {date}",DateTimeOffset.Now);
                     var result = await _processingFile.ReadCsv();
                     Console.WriteLine($"{result.Item2}");
                     await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);
