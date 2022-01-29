@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30804.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApi", "TestApi\TestApi.csproj", "{744CC09D-88C1-4DAA-95E2-F2B981055E48}"
 EndProject
@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Core", "TestCore\Test.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Repo", "TestRepo\Test.Repo\Test.Repo.csproj", "{38F21B80-5DBD-4561-B1FB-7664B8A0525E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.ApplicationServices", "TestApplicationServices\Test.ApplicationServices\Test.ApplicationServices.csproj", "{D11379A0-690C-4DF0-A582-07F88A9754A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ApplicationServices", "TestApplicationServices\Test.ApplicationServices\Test.ApplicationServices.csproj", "{D11379A0-690C-4DF0-A582-07F88A9754A2}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{23711234-B865-4F17-96FD-C38DF579CA40}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{D11379A0-690C-4DF0-A582-07F88A9754A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D11379A0-690C-4DF0-A582-07F88A9754A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D11379A0-690C-4DF0-A582-07F88A9754A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23711234-B865-4F17-96FD-C38DF579CA40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23711234-B865-4F17-96FD-C38DF579CA40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23711234-B865-4F17-96FD-C38DF579CA40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23711234-B865-4F17-96FD-C38DF579CA40}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
